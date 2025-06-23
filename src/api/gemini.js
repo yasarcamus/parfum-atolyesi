@@ -1,5 +1,14 @@
+// Dosya Yolu: src/api/gemini.js
+
 export async function callGeminiAPI(prompt) {
-    const apiKey = ""; // API Anahtarınızı buraya ekleyin veya bir ortam değişkeninden alın
+    // Kodu, Netlify'a eklediğimiz ortam değişkenini okuyacak şekilde güncelliyoruz.
+    const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+
+    if (!apiKey) {
+        console.error("Gemini API anahtarı bulunamadı!");
+        return "Yapay zeka özelliği için API anahtarı yapılandırılmamış. Lütfen site yöneticisi ile iletişime geçin.";
+    }
+
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
 
