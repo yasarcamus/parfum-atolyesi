@@ -3,7 +3,13 @@ import Modal from './Modal';
 
 const YeniUretimFormu = ({ onSave, onClose }) => {
     const [formData, setFormData] = useState({ 
-        parfumAdi: '', esansOrani: '20', siseBoyutu: '50', notlar: '', dinlenmeSuresi: '15', hatirlatmaAktif: true,
+        parfumAdi: '', 
+        esansOrani: '20', 
+        siseBoyutu: '50', 
+        notlar: '', 
+        dinlenmeSuresi: '15', 
+        hatirlatmaAktif: true,
+        hatirlatmaSaati: '20:00', // YENİ: Başlangıç saati eklendi
         maliyet: { alkol: '', esans: '', sise: '', safSu: '' }
     });
     
@@ -42,8 +48,18 @@ const YeniUretimFormu = ({ onSave, onClose }) => {
                         </div>
                     </details>
                     
-                    <div className="border-t border-amber-200 pt-4">
-                        <div className="flex items-center"><input id="hatirlatmaAktif" name="hatirlatmaAktif" type="checkbox" checked={formData.hatirlatmaAktif} onChange={handleChange} className="h-4 w-4 text-amber-700 border-stone-300 rounded focus:ring-amber-600" /><label htmlFor="hatirlatmaAktif" className="ml-2 block text-sm text-stone-700">Uygulama içi çalkalama hatırlatmalarını aç</label></div>
+                    {/* YENİ: Hatırlatma ayarları bölümü */}
+                    <div className="border-t border-amber-200 pt-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <label htmlFor="hatirlatmaAktif" className="text-sm font-medium text-stone-600">Çalkalama Hatırlatmaları</label>
+                            <input id="hatirlatmaAktif" name="hatirlatmaAktif" type="checkbox" checked={formData.hatirlatmaAktif} onChange={handleChange} className="h-6 w-10 rounded-full bg-stone-300 appearance-none checked:bg-amber-700 transition duration-200 relative shadow-inner focus:outline-none" />
+                        </div>
+                        {formData.hatirlatmaAktif && (
+                             <div>
+                                <label className="block text-sm font-medium text-stone-600">Hatırlatma Saati</label>
+                                <input type="time" name="hatirlatmaSaati" value={formData.hatirlatmaSaati} onChange={handleChange} className="mt-1 block w-full bg-white border-stone-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                            </div>
+                        )}
                     </div>
 
                 </div>
