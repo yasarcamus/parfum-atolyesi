@@ -4,17 +4,23 @@ export const calculateKalanGun = (baslangicTarihi, dinlenmeSuresi) => {
 };
 
 export const getCalkalamaMesaji = (uretim) => {
-    if (!uretim.hatirlatmaAktif) return null;
+    // Hatırlatma kapalıysa veya bir saat belirtilmemişse, mesaj gösterme.
+    if (!uretim.hatirlatmaAktif || !uretim.hatirlatmaSaati) return null;
+    
     const dinlenmeSuresi = parseInt(uretim.dinlenmeSuresi) || 15;
     const kalanGun = calculateKalanGun(uretim.baslangicTarihi, dinlenmeSuresi);
     if (kalanGun === 0) return null;
     
     const gecenGun = dinlenmeSuresi - kalanGun;
+    
+    // YENİ: Mesaja kullanıcının seçtiği saati ekliyoruz.
+    const mesaj = `Günlük çalkalama zamanı (${uretim.hatirlatmaSaati}) 💧`;
+    
     if (gecenGun < dinlenmeSuresi / 2) {
-        return "Günlük çalkalama zamanı 💧";
+        return mesaj;
     }
     if (gecenGun >= dinlenmeSuresi / 2 && gecenGun % 2 === 0) {
-        return "Günlük çalkalama zamanı 💧";
+        return mesaj;
     }
     return null;
 };
