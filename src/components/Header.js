@@ -2,8 +2,9 @@ import React from 'react';
 import { PlusIcon } from './Icons';
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
-const Header = ({ user, auth, onNewUretim }) => {
-
+// YENİ: onNewUretimClick prop'u eklendi
+const Header = ({ user, auth, onNewUretimClick }) => {
+    
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
         try {
@@ -27,15 +28,14 @@ const Header = ({ user, auth, onNewUretim }) => {
                 Parfüm Atölyem
             </h1>
             <div className="flex items-center gap-4">
-                {user && (
-                    <button 
-                        onClick={onNewUretim} 
-                        className="flex items-center gap-2 bg-amber-800 text-white font-semibold px-4 py-2 rounded-lg shadow-lg shadow-amber-800/20 hover:bg-amber-900 transition-all duration-300 transform hover:scale-105"
-                    >
-                        <PlusIcon />
-                        <span className="hidden sm:inline">Yeni Üretim</span>
-                    </button>
-                )}
+                {/* YENİ: Buton artık her zaman görünür ama işlevi App.js'de kontrol edilir */}
+                <button 
+                    onClick={onNewUretimClick} 
+                    className="flex items-center gap-2 bg-amber-800 text-white font-semibold px-4 py-2 rounded-lg shadow-lg shadow-amber-800/20 hover:bg-amber-900 transition-all duration-300 transform hover:scale-105"
+                >
+                    <PlusIcon />
+                    <span className="hidden sm:inline">Yeni Üretim</span>
+                </button>
                 
                 {user ? (
                     <div className="flex items-center gap-3">
@@ -43,9 +43,7 @@ const Header = ({ user, auth, onNewUretim }) => {
                         <button onClick={handleLogout} className="text-sm text-stone-600 hover:underline">Çıkış Yap</button>
                     </div>
                 ) : (
-                    <button onClick={handleGoogleLogin} className="bg-white border border-stone-300 px-4 py-2 rounded-lg font-semibold text-stone-700 hover:bg-stone-100 transition-colors">
-                        Google ile Giriş Yap
-                    </button>
+                    <button onClick={handleGoogleLogin} className="text-sm font-semibold text-stone-700 hover:underline">Giriş Yap</button>
                 )}
             </div>
         </header>

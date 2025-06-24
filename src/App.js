@@ -8,15 +8,19 @@ import { FlaskIcon } from './components/Icons';
 import IpucuKarti from './components/IpucuKarti';
 import { auth } from './firebase';
 import { onAuthStateChanged } from "firebase/auth";
+import GirisZorunluModal from './components/GirisZorunluModal'; // YENİ
+
+// YENİ: Misafir kullanıcılara gösterilecek örnek veriler
+const demoUretimler = [
+    { id: 'demo1', parfumAdi: 'Yaz Esintisi', esansOrani: '15', dinlenmeSuresi: '21', notlar: 'Üst notalarda bergamot ve limon, kalbinde yasemin ve deniz notaları. Ferah ve canlandırıcı.', baslangicTarihi: new Date().toISOString(), etiketler: ['Yazlık', 'Ferah'] },
+    { id: 'demo2', parfumAdi: 'Kış Gecesi', esansOrani: '25', dinlenmeSuresi: '45', notlar: 'Sıcak baharatlar, vanilya ve tütün notalarının birleşimi. Yoğun ve etkileyici bir koku.', baslangicTarihi: new Date().toISOString(), etiketler: ['Kışlık', 'Yoğun', 'Baharatlı'] },
+];
 
 const ipuclari = [
     "Dinlendirme sırasında şişeyi doğrudan güneş ışığından ve ısı kaynaklarından uzak tutun.",
     "İyi bir çalkalama, esans ve alkol moleküllerinin daha iyi bütünleşmesini sağlar.",
     "Parfümünüzü test ederken, önce bir kağıt test çubuğuna sıkıp birkaç dakika bekleyin.",
     "Kalıcılığı artırmak için formülünüze bir miktar gliserin veya ISO E Super gibi bir fiksatör eklemeyi düşünebilirsiniz.",
-    "Farklı esans oranları (%EDP, %EDT) parfümün karakterini ve performansını tamamen değiştirir. Denemekten çekinmeyin!",
-    "Parfüm notaları zamanla olgunlaşır. İlk günkü koku ile bir ay sonraki koku arasında fark olacaktır.",
-    "Maliyet hesabı yaparken kullandığınız her malzemenin (hatta suyun bile) gram/ml maliyetini not alın."
 ];
 
 export default function App() {
@@ -41,17 +45,26 @@ export default function App() {
         }, 15000);
         return () => clearInterval(intervalId);
     }, []);
-
+    
+    // YENİ: Veri yükleme mantığı güncellendi
     useEffect(() => {
-        if (!user) return; // Kullanıcı giriş yapmadıysa localStorage ile işlem yapma
+        if (!user) {
+            setUretimler([]); // Kullanıcı çıkış yapınca listeyi temizle
+            return;
+        }
         try {
+            // Bir sonraki adımda burayı Firestore'dan okuyacak şekilde değiştireceğiz
             const savedUretimler = localStorage.getItem(`parfumAtolyem_${user.uid}`);
-            if (savedUretimler) setUretimler(JSON.parse(savedUretimler));
+            if (savedUretimler) {
+                setUretimler(JSON.parse(savedUretimler));
+            } else {
+                setUretimler([]); // Kullanıcının kayıtlı verisi yoksa boş liste göster
+            }
         } catch (error) { console.error("Veri yüklenemedi:", error); }
     }, [user]);
 
     useEffect(() => {
-        if (!user) return; // Kullanıcı giriş yapmadıysa localStorage'a kaydetme
+        if (!user || uretimler.length === 0) return;
         try {
             localStorage.setItem(`parfumAtolyem_${user.uid}`, JSON.stringify(uretimler));
         } catch (error) { console.error("Veri kaydedilemedi:", error); }
@@ -87,6 +100,15 @@ export default function App() {
         setModal({ name: modalName, props });
     };
 
+    // YENİ: 'Yeni Üretim' butonu için akıllı kontrol
+    const handleNewUretimClick = () => {
+        if (user) {
+            openModal('yeniUretim');
+        } else {
+            openModal('girisZorunlu');
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="bg-orange-50 min-h-screen flex items-center justify-center">
@@ -94,44 +116,42 @@ export default function App() {
             </div>
         );
     }
+    
+    // YENİ: Gösterilecek kartları kullanıcı durumuna göre belirle
+    const gosterilecekUretimler = user ? uretimler : demoUretimler;
 
     return (
         <div className="bg-orange-50 min-h-screen font-sans">
-            <Header user={user} auth={auth} onNewUretim={() => openModal('yeniUretim')} />
+            <Header user={user} auth={auth} onNewUretimClick={handleNewUretimClick} />
             
-            {user ? (
-                 <main className="p-4 sm:p-6 md:p-8">
-                    {uretimler.length === 0 ? (
-                        <div className="text-center py-10 px-6">
-                            <h2 className="text-2xl font-semibold text-amber-900 font-serif">Atölyeniz Henüz Boş</h2>
-                            <p className="mt-2 text-stone-500 max-w-md mx-auto">İlk parfüm formülünüzü oluşturmak için yukarıdaki 'Yeni Üretim' butonuna tıklayın.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                            {uretimler.sort((a, b) => new Date(b.baslangicTarihi) - new Date(a.baslangicTarihi)).map(uretim => (
-                                <UretimKarti 
-                                    key={uretim.id} 
-                                    uretim={uretim} 
-                                    onUpdate={handleSaveUretim}
-                                    onDelete={() => handleDeleteUretim(uretim.id)}
-                                    onOpenModal={openModal}
-                                />
-                            ))}
-                        </div>
-                    )}
-                    <IpucuKarti tip={aktifIpucu} />
-                </main>
-            ) : (
-                <div className="text-center py-20 px-6">
-                    <FlaskIcon />
-                    <h2 className="text-4xl mt-4 font-bold text-amber-900 font-serif">Parfüm Atölyenize Hoş Geldiniz</h2>
-                    <p className="mt-4 text-lg text-stone-600 max-w-2xl mx-auto">Kendi özel parfümlerinizi yaratın, formüllerinizi kaydedin ve maliyetlerinizi takip edin. Başlamak için lütfen giriş yapın.</p>
-                </div>
-            )}
+            <main className="p-4 sm:p-6 md:p-8">
+                {gosterilecekUretimler.length === 0 && user && ( // Sadece giriş yapmış ve üretimi olmayan kullanıcı için göster
+                     <div className="text-center py-10 px-6">
+                        <h2 className="text-2xl font-semibold text-amber-900 font-serif">Atölyeniz Henüz Boş</h2>
+                        <p className="mt-2 text-stone-500 max-w-md mx-auto">İlk parfüm formülünüzü oluşturmak için yukarıdaki 'Yeni Üretim' butonuna tıklayın.</p>
+                    </div>
+                )}
+                {gosterilecekUretimler.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {gosterilecekUretimler.map(uretim => (
+                            <UretimKarti 
+                                key={uretim.id} 
+                                uretim={uretim} 
+                                onUpdate={handleSaveUretim}
+                                onDelete={() => handleDeleteUretim(uretim.id)}
+                                onOpenModal={openModal}
+                                isGuest={!user} // Kartın misafir için mi olduğunu belirt
+                            />
+                        ))}
+                    </div>
+                )}
+                <IpucuKarti tip={aktifIpucu} />
+            </main>
            
             {modal?.name === 'yeniUretim' && <YeniUretimFormu onSave={handleSaveUretim} onClose={() => setModal(null)} />}
             {modal?.name === 'testGiris' && <TestGirisModal uretim={modal.props.uretim} onSave={handleSaveUretim} onClose={() => setModal(null)} />}
             {modal?.name === 'analiz' && <AnalizModal uretim={modal.props.uretim} onClose={() => setModal(null)} />}
+            {modal?.name === 'girisZorunlu' && <GirisZorunluModal onClose={() => setModal(null)} />}
         </div>
     );
 }
