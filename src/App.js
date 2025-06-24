@@ -5,10 +5,38 @@ import YeniUretimFormu from './components/YeniUretimFormu';
 import TestGirisModal from './components/TestGirisModal';
 import AnalizModal from './components/AnalizModal';
 import { FlaskIcon } from './components/Icons';
+import IpucuKarti from './components/IpucuKarti'; // YENİ: IpucuKarti import edildi
+
+// YENİ: Gösterilecek ipuçlarının listesi
+const ipuclari = [
+    "Dinlendirme sırasında şişeyi doğrudan güneş ışığından ve ısı kaynaklarından uzak tutun.",
+    "İyi bir çalkalama, esans ve alkol moleküllerinin daha iyi bütünleşmesini sağlar.",
+    "Parfümünüzü test ederken, önce bir kağıt test çubuğuna sıkıp birkaç dakika bekleyin.",
+    "Kalıcılığı artırmak için formülünüze bir miktar gliserin veya ISO E Super gibi bir fiksatör eklemeyi düşünebilirsiniz.",
+    "Farklı esans oranları (%EDP, %EDT) parfümün karakterini ve performansını tamamen değiştirir. Denemekten çekinmeyin!",
+    "Parfüm notaları zamanla olgunlaşır. İlk günkü koku ile bir ay sonraki koku arasında fark olacaktır.",
+    "Maliyet hesabı yaparken kullandığınız her malzemenin (hatta suyun bile) gram/ml maliyetini not alın."
+];
 
 export default function App() {
     const [uretimler, setUretimler] = useState([]);
     const [modal, setModal] = useState(null);
+    const [aktifIpucu, setAktifIpucu] = useState(''); // YENİ: Aktif ipucu için state
+
+    // YENİ: Uygulama ilk yüklendiğinde rastgele bir ipucu seç
+    useEffect(() => {
+        setAktifIpucu(ipuclari[Math.floor(Math.random() * ipuclari.length)]);
+    }, []);
+    
+    // YENİ: Her 15 saniyede bir ipucunu değiştir
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setAktifIpucu(ipuclari[Math.floor(Math.random() * ipuclari.length)]);
+        }, 15000); // 15 saniye
+
+        return () => clearInterval(intervalId); // Component temizlendiğinde interval'ı durdur
+    }, []);
+
 
     useEffect(() => {
         try {
@@ -54,7 +82,7 @@ export default function App() {
     };
 
     return (
-        <div className="bg-orange-50 min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <div className="bg-orange-50 min-h-screen font-sans">
             <Header onNewUretim={() => openModal('yeniUretim')} />
             <main className="p-4 sm:p-6 md:p-8">
                 {uretimler.length === 0 ? (
@@ -76,6 +104,10 @@ export default function App() {
                         ))}
                     </div>
                 )}
+
+                {/* YENİ: Ipucu kartı ana ekrana eklendi */}
+                <IpucuKarti tip={aktifIpucu} />
+
             </main>
             {modal?.name === 'yeniUretim' && <YeniUretimFormu onSave={handleSaveUretim} onClose={() => setModal(null)} />}
             {modal?.name === 'testGiris' && <TestGirisModal uretim={modal.props.uretim} onSave={handleSaveUretim} onClose={() => setModal(null)} />}
