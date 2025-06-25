@@ -1,6 +1,6 @@
 import React from 'react';
 import UretimKarti from './UretimKarti';
-import RehberBolumu from './RehberBolumu'; // HATA DÜZELTİLDİ: Eksik import eklendi.
+import RehberBolumu from './RehberBolumu';
 
 const demoUretimler = [
     { id: 'demo1', parfumAdi: 'Akdeniz Sabahı', esansOrani: '18', dinlenmeSuresi: '21', notlar: 'Üst notalarda bergamot ve mandalina, kalbinde yasemin ve incir yaprağı. Ferah, canlandırıcı ve yeşil bir başlangıç.', baslangicTarihi: '2024-05-20T10:00:00.000Z', etiketler: ['Yazlık', 'Ferah', 'Narenciye'], test: { kalicilik: '4', silaj: '3', begeni: '5' } },
@@ -20,6 +20,17 @@ const MisafirAnaSayfa = ({ onOpenModal, isGuest, showTitle = true }) => {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+                {/* DÜZENLENDİ: Örnek Kartlar (Sol Taraf) */}
+                {showTitle && (
+                    <div className="lg:col-span-1 space-y-8">
+                         <h3 className="text-center text-lg font-semibold text-stone-700">Atölyede Neler Yapabilirsiniz?</h3>
+                         {demoUretimler.map(uretim => (
+                            <UretimKarti key={uretim.id} uretim={uretim} isGuest={true} onOpenModal={onOpenModal} />
+                         ))}
+                    </div>
+                )}
+                
+                {/* DÜZENLENDİ: Rehber (Sağ Taraf) */}
                 <div className={`lg:col-span-2 ${!showTitle && 'lg:col-span-3'}`}>
                     <div className="relative">
                         {isGuest ? (
@@ -33,15 +44,6 @@ const MisafirAnaSayfa = ({ onOpenModal, isGuest, showTitle = true }) => {
                         )}
                     </div>
                 </div>
-                
-                {showTitle && (
-                    <div className="lg:col-span-1 space-y-8">
-                         <h3 className="text-center text-lg font-semibold text-stone-700">Atölyede Neler Yapabilirsiniz?</h3>
-                         {demoUretimler.map(uretim => (
-                            <UretimKarti key={uretim.id} uretim={uretim} isGuest={true} onOpenModal={onOpenModal} />
-                         ))}
-                    </div>
-                )}
             </div>
         </div>
     );
