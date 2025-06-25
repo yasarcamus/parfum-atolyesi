@@ -11,7 +11,8 @@ const MisafirAnaSayfa = ({ onOpenModal, isGuest, showTitle = true }) => {
     return (
         <div>
             {showTitle && (
-                <div className="text-center pt-8 pb-12">
+                // DÜZENLENDİ: Üst boşluk azaltıldı.
+                <div className="text-center pt-4 pb-10">
                      <h1 className="text-5xl font-bold text-amber-900 font-serif">Parfüm Sanatını Keşfet</h1>
                      <p className="mt-4 max-w-3xl mx-auto text-xl text-stone-600">
                         Kendi imza kokunuzu yaratmak için ihtiyacınız olan tüm araçlar, bilgiler ve ilham burada.
@@ -20,17 +21,17 @@ const MisafirAnaSayfa = ({ onOpenModal, isGuest, showTitle = true }) => {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-                {/* DÜZENLENDİ: Örnek Kartlar (Sol Taraf) */}
+                {/* Sol Taraf: Örnek Kartlar */}
                 {showTitle && (
+                     // DÜZENLENDİ: "Atölyede neler yapabilirsiniz" başlığı kaldırıldı.
                     <div className="lg:col-span-1 space-y-8">
-                         <h3 className="text-center text-lg font-semibold text-stone-700">Atölyede Neler Yapabilirsiniz?</h3>
                          {demoUretimler.map(uretim => (
                             <UretimKarti key={uretim.id} uretim={uretim} isGuest={true} onOpenModal={onOpenModal} />
                          ))}
                     </div>
                 )}
                 
-                {/* DÜZENLENDİ: Rehber (Sağ Taraf) */}
+                {/* Sağ Taraf: Rehber */}
                 <div className={`lg:col-span-2 ${!showTitle && 'lg:col-span-3'}`}>
                     <div className="relative">
                         {isGuest ? (
