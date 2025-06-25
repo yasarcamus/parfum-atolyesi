@@ -1,60 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
-import UretimKarti from './components/UretimKarti';
 import YeniUretimFormu from './components/YeniUretimFormu';
 import TestGirisModal from './components/TestGirisModal';
 import AnalizModal from './components/AnalizModal';
 import { auth } from './firebase';
 import { onAuthStateChanged } from "firebase/auth";
 import GirisZorunluModal from './components/GirisZorunluModal';
-import MisafirAnaSayfa from './components/MisafirAnaSayfa'; // YENİ
+import MisafirAnaSayfa from './components/MisafirAnaSayfa';
+import Sidebar from './components/Sidebar';
+import AtolyeGorunumu from './components/AtolyeGorunumu';
+import RehberBolumu from './components/RehberBolumu';
 
 export default function App() {
     const [uretimler, setUretimler] = useState([]);
     const [modal, setModal] = useState(null);
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [aktifSayfa, setAktifSayfa] = useState('atolyem'); // YENİ
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
+            if(currentUser) {
+                setAktifSayfa('atolyem');
+            }
             setIsLoading(false);
         });
         return () => unsubscribe();
     }, []);
 
     useEffect(() => {
-        if (!user) {
-            setUretimler([]); 
-            return;
-        }
-        try {
-            const savedUretimler = localStorage.getItem(`parfumAtolyem_${user.uid}`);
-            if (savedUretimler) {
-                setUretimler(JSON.parse(savedUretimler));
-            } else {
-                setUretimler([]);
-            }
-        } catch (error) { console.error("Veri yüklenemedi:", error); }
+        if (!user) { setUretimler([]); return; }
+        // Firestore entegrasyonu buraya gelecek
+        const savedUretimler = localStorage.getItem(`parfumAtolyem_${user.uid}`);
+        if (savedUretimler) setUretimler(JSON.parse(savedUretimler));
+        else setUretimler([]);
     }, [user]);
 
     useEffect(() => {
         if (!user || !uretimler) return;
-        try {
-            localStorage.setItem(`parfumAtolyem_${user.uid}`, JSON.stringify(uretimler));
-        } catch (error) { console.error("Veri kaydedilemedi:", error); }
+        localStorage.setItem(`parfumAtolyem_${user.uid}`, JSON.stringify(uretimler));
     }, [uretimler, user]);
 
     useEffect(() => {
-        const body = document.body;
-        if (modal) {
-            body.classList.add('modal-open');
-        } else {
-            body.classList.remove('modal-open');
-        }
-        return () => {
-            body.classList.remove('modal-open');
-        };
+        document.body.classList.toggle('modal-open', !!modal);
+        return () => document.body.classList.remove('modal-open');
     }, [modal]);
 
     const handleSaveUretim = (uretimData) => {
@@ -82,6 +72,23 @@ export default function App() {
             openModal('girisZorunlu');
         }
     };
+    
+    const renderAktifSayfa = () => {
+        switch (aktifSayfa) {
+            case 'rehber':
+                return <RehberBolumu onLoginClick={() => openModal('girisZorunlu')} isGuest={false} />;
+            case 'ilham':
+                return <MisafirAnaSayfa onOpenModal={openModal} isGuest={false} showTitle={false} />;
+            case 'atolyem':
+            default:
+                return <AtolyeGorunumu 
+                            uretimler={uretimler}
+                            onUpdate={handleSaveUretim}
+                            onDelete={handleDeleteUretim}
+                            onOpenModal={openModal}
+                        />;
+        }
+    };
 
     if (isLoading) {
         return (
@@ -95,32 +102,20 @@ export default function App() {
         <div className="bg-orange-50 min-h-screen font-sans">
             <Header user={user} auth={auth} onNewUretimClick={handleNewUretimClick} />
             
-            <main className="p-4 sm:p-6 md:p-8">
+            <div className="flex" style={{ height: 'calc(100vh - 73px)' }}>
                 {user ? (
                     <>
-                        {uretimler.length === 0 ? (
-                            <div className="text-center py-10 px-6">
-                                <h2 className="text-2xl font-semibold text-amber-900 font-serif">Atölyeniz Henüz Boş</h2>
-                                <p className="mt-2 text-stone-500 max-w-md mx-auto">İlk parfüm formülünüzü oluşturmak için yukarıdaki 'Yeni Üretim' butonuna tıklayın.</p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                                {uretimler.map(uretim => (
-                                    <UretimKarti 
-                                        key={uretim.id} 
-                                        uretim={uretim} 
-                                        onUpdate={handleSaveUretim}
-                                        onDelete={() => handleDeleteUretim(uretim.id)}
-                                        onOpenModal={openModal}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        <Sidebar aktifSayfa={aktifSayfa} setAktifSayfa={setAktifSayfa} />
+                        <main className="flex-1 p-8 overflow-y-auto">
+                           {renderAktifSayfa()}
+                        </main>
                     </>
                 ) : (
-                    <MisafirAnaSayfa onOpenModal={openModal} />
+                    <main className="w-full p-4 sm:p-6 md:p-8 overflow-y-auto">
+                        <MisafirAnaSayfa onOpenModal={openModal} isGuest={true} />
+                    </main>
                 )}
-            </main>
+            </div>
            
             {modal?.name === 'yeniUretim' && <YeniUretimFormu onSave={handleSaveUretim} onClose={() => setModal(null)} />}
             {modal?.name === 'testGiris' && <TestGirisModal uretim={modal.props.uretim} onSave={handleSaveUretim} onClose={() => setModal(null)} />}
