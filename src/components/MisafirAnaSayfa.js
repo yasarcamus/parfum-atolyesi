@@ -1,15 +1,10 @@
 import React from 'react';
 import UretimKarti from './UretimKarti';
+import RehberBolumu from './RehberBolumu'; // HATA DÜZELTİLDİ: Eksik import eklendi.
 
 const demoUretimler = [
     { id: 'demo1', parfumAdi: 'Akdeniz Sabahı', esansOrani: '18', dinlenmeSuresi: '21', notlar: 'Üst notalarda bergamot ve mandalina, kalbinde yasemin ve incir yaprağı. Ferah, canlandırıcı ve yeşil bir başlangıç.', baslangicTarihi: '2024-05-20T10:00:00.000Z', etiketler: ['Yazlık', 'Ferah', 'Narenciye'], test: { kalicilik: '4', silaj: '3', begeni: '5' } },
     { id: 'demo2', parfumAdi: 'Kış Gecesi', esansOrani: '25', dinlenmeSuresi: '45', notlar: 'Sıcak baharatlar, vanilya ve tütün notalarının birleşimi. Yoğun ve etkileyici bir koku.', baslangicTarihi: '2024-04-10T10:00:00.000Z', etiketler: ['Kışlık', 'Yoğun', 'Tatlı'], test: { kalicilik: '5', silaj: '4', begeni: '5' } },
-];
-
-const rehberAdimlari = [
-    { adim: "01", baslik: "Vizyonunu Belirle: Hikayen Ne?", aciklama: "Her parfüm bir hikaye anlatır. Seninki hangisi olacak? Yağmurlu bir orman yürüyüşü mü, yoksa sıcak bir yaz akşamı mı? İlham panonu oluştur, notalarını (ferah, odunsu, baharatlı) ve karakterini düşünerek işe başla." },
-    { adim: "02", baslik: "Malzemelerini Hazırla: Sanatçının Paleti", aciklama: "Yüksek kaliteli esansiyel yağlar, mutlaklar (absolutes), parfümör alkolü (SDA 40-B gibi), bir cam beher ve 0.01g hassasiyetinde bir terazi temel ihtiyaçlarındır. Unutma, enstrümanlarının kalitesi, müziğinin kalitesini belirler." },
-    { adim: "03", baslik: "Formülünü Oluştur: Mimari Plan", aciklama: "Parfümeri bir mimaridir. Üst, orta ve alt notalarını bir piramit gibi düşün. Hangi notanın ne zaman ortaya çıkacağını planla. Uygulamamızın formül yaratıcısı ile oranları girerek ilk denemeni yap. Aracımız, hesaplama hatalarını ortadan kaldırarak yaratıcılığına odaklanmanı sağlar." },
 ];
 
 const MisafirAnaSayfa = ({ onOpenModal, isGuest, showTitle = true }) => {
