@@ -3,7 +3,7 @@ import { calculateKalanGun, getCalkalamaMesaji } from '../utils/helpers';
 import { BeakerIcon, SparklesIcon, TrashIcon } from './Icons';
 import EtiketEkleme from './EtiketEkleme';
 
-const UretimKarti = ({ uretim, onUpdate, onDelete, onOpenModal, isGuest }) => {
+const UretimKarti = ({ uretim, onUpdate, onDelete, onOpenModal, isGuest = false }) => {
     const kalanGun = calculateKalanGun(uretim.baslangicTarihi, uretim.dinlenmeSuresi);
     const calkalamaMesaji = getCalkalamaMesaji(uretim);
     const progressPercent = Math.min(100, ((uretim.dinlenmeSuresi - kalanGun) / uretim.dinlenmeSuresi) * 100);
@@ -15,13 +15,13 @@ const UretimKarti = ({ uretim, onUpdate, onDelete, onOpenModal, isGuest }) => {
     const totalCost = calculateTotalCost();
 
     const handleAddEtiket = (yeniEtiket) => {
-        if (isGuest) return;
+        if (isGuest) return onOpenModal('girisZorunlu');
         if (yeniEtiket && !(uretim.etiketler || []).includes(yeniEtiket)) {
             onUpdate({ ...uretim, etiketler: [...(uretim.etiketler || []), yeniEtiket] });
         }
     };
     const handleRemoveEtiket = (etiketToRemove) => {
-        if (isGuest) return;
+        if (isGuest) return onOpenModal('girisZorunlu');
         onUpdate({ ...uretim, etiketler: uretim.etiketler.filter(e => e !== etiketToRemove) });
     };
 
@@ -66,22 +66,20 @@ const UretimKarti = ({ uretim, onUpdate, onDelete, onOpenModal, isGuest }) => {
                 
                 {!uretim.test ? (
                     <button 
-                        onClick={() => !isGuest && onOpenModal('testGiris', { uretim })} 
-                        className={`w-full flex items-center justify-center gap-2 bg-amber-800 text-white font-bold py-3 rounded-lg transition-colors ${isGuest ? 'cursor-not-allowed bg-amber-700/50' : 'hover:bg-amber-900'}`}
-                        disabled={isGuest}
+                        onClick={() => isGuest ? onOpenModal('girisZorunlu') : onOpenModal('testGiris', { uretim })} 
+                        className="w-full flex items-center justify-center gap-2 bg-amber-800 text-white font-bold py-3 rounded-lg hover:bg-amber-900 transition-colors"
                     >
                         <BeakerIcon /> Test Et & Değerlendir
                     </button>
                 ) : (
                     <div className="flex flex-col gap-2">
                          <button 
-                            onClick={() => !isGuest && onOpenModal('analiz', { uretim })} 
-                            className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold py-2 rounded-lg transition-opacity ${isGuest ? 'cursor-not-allowed opacity-50' : 'hover:opacity-90'}`}
-                            disabled={isGuest}
+                            onClick={() => isGuest ? onOpenModal('girisZorunlu') : onOpenModal('analiz', { uretim })} 
+                            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold py-2 rounded-lg hover:opacity-90 transition-opacity"
                          >
-                            <SparklesIcon /> AI ile Yeniden Analiz Et
+                            <SparklesIcon /> AI ile Analiz Et
                         </button>
-                        {!isGuest && <button onClick={() => onOpenModal('testGiris', { uretim })} className="w-full text-xs text-stone-600 hover:underline">Test notlarını düzenle</button>}
+                        <button onClick={() => isGuest ? onOpenModal('girisZorunlu') : onOpenModal('testGiris', { uretim })} className="w-full text-xs text-stone-600 hover:underline">Test notlarını düzenle</button>
                     </div>
                 )}
                  {!isGuest && <button onClick={() => { if (window.confirm("Bu üretimi silmek istediğinizden emin misiniz?")) { onDelete(uretim.id) }}} className="text-xs text-stone-400 hover:text-red-600 hover:underline mt-4 w-full flex items-center justify-center gap-1"><TrashIcon /> Sil</button>}

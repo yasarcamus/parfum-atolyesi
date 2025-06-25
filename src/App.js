@@ -7,7 +7,7 @@ import AnalizModal from './components/AnalizModal';
 import { auth } from './firebase';
 import { onAuthStateChanged } from "firebase/auth";
 import GirisZorunluModal from './components/GirisZorunluModal';
-import RehberBolumu from './components/RehberBolumu'; // YENİ
+import MisafirAnaSayfa from './components/MisafirAnaSayfa'; // YENİ
 
 export default function App() {
     const [uretimler, setUretimler] = useState([]);
@@ -23,8 +23,6 @@ export default function App() {
         return () => unsubscribe();
     }, []);
 
-    // YENİ: Veri yükleme ve kaydetme mantığı basitleştirildi.
-    // Bu bölüm, bir sonraki adımımız olan Firestore entegrasyonu ile tamamen değişecek.
     useEffect(() => {
         if (!user) {
             setUretimler([]); 
@@ -32,7 +30,11 @@ export default function App() {
         }
         try {
             const savedUretimler = localStorage.getItem(`parfumAtolyem_${user.uid}`);
-            if (savedUretimler) setUretimler(JSON.parse(savedUretimler));
+            if (savedUretimler) {
+                setUretimler(JSON.parse(savedUretimler));
+            } else {
+                setUretimler([]);
+            }
         } catch (error) { console.error("Veri yüklenemedi:", error); }
     }, [user]);
 
@@ -95,7 +97,6 @@ export default function App() {
             
             <main className="p-4 sm:p-6 md:p-8">
                 {user ? (
-                    // GİRİŞ YAPMIŞ KULLANICI GÖRÜNÜMÜ
                     <>
                         {uretimler.length === 0 ? (
                             <div className="text-center py-10 px-6">
@@ -117,8 +118,7 @@ export default function App() {
                         )}
                     </>
                 ) : (
-                    // MİSAFİR KULLANICI GÖRÜNÜMÜ
-                    <RehberBolumu onLoginClick={() => openModal('girisZorunlu')} />
+                    <MisafirAnaSayfa onOpenModal={openModal} />
                 )}
             </main>
            
