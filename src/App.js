@@ -16,7 +16,7 @@ export default function App() {
     const [modal, setModal] = useState(null);
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [aktifSayfa, setAktifSayfa] = useState('atolyem'); // YENİ
+    const [aktifSayfa, setAktifSayfa] = useState('atolyem');
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -31,7 +31,6 @@ export default function App() {
 
     useEffect(() => {
         if (!user) { setUretimler([]); return; }
-        // Firestore entegrasyonu buraya gelecek
         const savedUretimler = localStorage.getItem(`parfumAtolyem_${user.uid}`);
         if (savedUretimler) setUretimler(JSON.parse(savedUretimler));
         else setUretimler([]);
